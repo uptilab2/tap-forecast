@@ -10,7 +10,7 @@ setup(name='tap-forecast',
     classifiers=['Programming Language :: Python :: 3 :: Only'],
     py_modules=['tap_forecast'],
     install_requires=[
-        'singer-python>=5.3.3',
+        'singer-python>=5.9.0',
         'requests>=2.20.0'
     ],
     entry_points='''

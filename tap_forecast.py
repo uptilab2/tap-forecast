@@ -3,6 +3,7 @@ import json
 import singer
 import singer.metrics as metrics
 import singer.bookmarks as bookmarks
+import singer.metadata as metadata
 import requests
 import collections
 
@@ -44,9 +45,8 @@ def get_all_data(name, schema, state, url, mdata=None):
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema)
                 singer.write_record(name, rec, time_extracted=extraction_time)
-                singer.write_bookmark(state, name, {
-                    'since': singer.utils.strftime(extraction_time)
-                })
+                singer.write_bookmark(state, name, 'updated_at',
+                                      singer.utils.strftime(extraction_time))
                 counter.increment()
     return state
 
@@ -63,9 +63,7 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                         rec = transformer.transform(record, schema)
                     singer.write_record(name, rec,
                                         time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, {
-                        'since': singer.utils.strftime(extraction_time)
-                    })
+                    singer.write_bookmark(state, name, 'updated_at', singer.utils.strftime(extraction_time))
                     counter.increment()
     return state
 
@@ -80,8 +78,6 @@ def get_all_objects_id(url, name):
 
 def get_all_rate_card_rates(name, schema, state, url, mdata=None):
     for rate_card_id in get_all_objects_id(url, 'rate_cards'):
-        print(rate_card_id)
-        print(name)
         response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
         if response:
             with metrics.record_counter(name) as counter:
@@ -92,9 +88,8 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
                         rec = transformer.transform(record, schema)
                     singer.write_record(name, rec,
                                         time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, {
-                        'since': singer.utils.strftime(extraction_time)
-                    })
+                    singer.write_bookmark(state, name, 'updated_at',
+                                          singer.utils.strftime(extraction_time))
                     counter.increment()
     return state
 
@@ -105,16 +100,18 @@ def get_catalog():
 
     for schema_name, schema in raw_schemas.items():
 
-        # TODO: get metadata for each field
-        # mdata = populate_metadata(schema_name, schema)
-
         # create and add catalog entry
         catalog_entry = {
             'stream': schema_name,
             'tap_stream_id': schema_name,
             'schema': schema,
-            # 'metadata' : metadata.to_list(mdata),
-            'key_properties': ['id'] if schema_name in NO_ID_PROPERTIES else '',
+            'metadata': metadata.get_standard_metadata(
+                schema,
+                schema_name,
+                ['id'] if schema_name not in NO_ID_PROPERTIES else None,
+                'updated-at',
+            ),
+            'key_properties': ['id'] if schema_name in NO_ID_PROPERTIES else ''
         }
         streams.append(catalog_entry)
 
@@ -123,7 +120,6 @@ def get_catalog():
 
 def load_schemas():
     schemas = {}
-
     for filename in os.listdir(get_abs_path('tap_forecast')):
         logger.info(f'extracting {filename} ========================')
         path = get_abs_path('tap_forecast') + '/' + filename
@@ -140,11 +136,8 @@ def translate_state(state, catalog, organization):
 
     for stream in catalog['streams']:
         stream_name = stream['tap_stream_id']
-        for org in organization:
-            if bookmarks.get_bookmark(state, org, stream_name):
-                return state
-            if bookmarks.get_bookmark(state, stream_name, 'since'):
-                new_state['bookmarks'][org][stream_name]['since'] = bookmarks.get_bookmark(state, stream_name, 'since')
+        if bookmarks.get_bookmark(state, stream_name, 'updated_at'):
+            new_state['bookmarks'][stream_name]['updated_at'] = bookmarks.get_bookmark(state, stream_name, 'updated_at')
 
     return new_state
 
@@ -153,7 +146,7 @@ CUSTOM_SYNC_FUNC = {
     'milestones': get_all_data_with_projects,
     'team': get_all_data_with_projects,
     'rate_card_rates': get_all_rate_card_rates,
-    # 'reapeating': get_all_rate_card_rates, maybe use projects
+    'repeating_cards': get_all_data_with_projects,
     'sprints': get_all_data_with_projects,
     'sub_tasks': get_all_data_with_projects,
     'workflow_columns': get_all_data_with_projects,
@@ -174,9 +167,11 @@ def do_sync_mode(config, state, catalog):
         # properties who need id from another properties
         if stream_id in CUSTOM_SYNC_FUNC:
             sync_func = CUSTOM_SYNC_FUNC[stream_id]
-            state = sync_func(stream['stream'], stream_schema, state, url=config['API_URL'])
+            state = sync_func(stream['stream'], stream_schema, state,
+                              url=config['API_URL'])
         else:
-            state = get_all_data(stream['stream'], stream_schema, state, url=config['API_URL'])
+            state = get_all_data(stream['stream'], stream_schema, state,
+                                 url=config['API_URL'])
 
         singer.write_state(state)
 

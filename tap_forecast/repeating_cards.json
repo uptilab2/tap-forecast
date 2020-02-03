@@ -1,0 +1,89 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "monday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "tuesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "wednesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "thursday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "friday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "saturday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "sunday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "monthly_day": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "repeat_type": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}
