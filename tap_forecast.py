@@ -63,7 +63,12 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                         rec = transformer.transform(record, schema)
                     singer.write_record(name, rec,
                                         time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, 'updated_at', singer.utils.strftime(extraction_time))
+                    singer.write_bookmark(
+                        state,
+                        name,
+                        'updated_at',
+                        singer.utils.strftime(extraction_time)
+                    )
                     counter.increment()
     return state
 
@@ -88,8 +93,12 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
                         rec = transformer.transform(record, schema)
                     singer.write_record(name, rec,
                                         time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, 'updated_at',
-                                          singer.utils.strftime(extraction_time))
+                    singer.write_bookmark(
+                        state,
+                        name,
+                        'updated_at',
+                        singer.utils.strftime(extraction_time)
+                    )
                     counter.increment()
     return state
 
@@ -137,7 +146,8 @@ def translate_state(state, catalog, organization):
     for stream in catalog['streams']:
         stream_name = stream['tap_stream_id']
         if bookmarks.get_bookmark(state, stream_name, 'updated_at'):
-            new_state['bookmarks'][stream_name]['updated_at'] = bookmarks.get_bookmark(state, stream_name, 'updated_at')
+            new_state['bookmarks'][stream_name]['updated_at'] = bookmarks. \
+                get_bookmark(state, stream_name, 'updated_at')
 
     return new_state
 
