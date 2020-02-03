@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "id": {
+            "type": [
+              "integer"
+            ]
+        },
         "person": {
             "type": [
                 "null",

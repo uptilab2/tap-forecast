@@ -2,7 +2,8 @@
 
 from setuptools import setup, find_packages
 
-setup(name='tap-forecast',
+setup(
+    name='tap-forecast',
     version='1.0.0',
     description='Singer.io tap for extracting data from the Forecast API',
     author='Eric',
@@ -18,7 +19,7 @@ setup(name='tap-forecast',
         tap-forecast=tap_forecast:main
     ''',
     packages=['tap_forecast'],
-    package_data = {
+    package_data={
         'tap_forecast': ['tap_forecast/*.json']
     },
     include_package_data=True

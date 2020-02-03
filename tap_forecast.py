@@ -13,7 +13,7 @@ logger = singer.get_logger()
 REQUIRED_CONFIG_KEYS = ['API_KEY', 'API_URL']
 
 
-NO_ID_PROPERTIES = ['team', 'rate_card_rates']
+NO_ID_PROPERTIES = ['team', 'rates']
 
 
 class AuthException(Exception):
@@ -155,7 +155,7 @@ def translate_state(state, catalog, organization):
 CUSTOM_SYNC_FUNC = {
     'milestones': get_all_data_with_projects,
     'team': get_all_data_with_projects,
-    'rate_card_rates': get_all_rate_card_rates,
+    'rates': get_all_rate_card_rates,
     'repeating_cards': get_all_data_with_projects,
     'sprints': get_all_data_with_projects,
     'sub_tasks': get_all_data_with_projects,

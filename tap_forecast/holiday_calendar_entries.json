@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "id": {
+            "type": [
+              "integer"
+            ]
+        },
         "holiday_calendar_id": {
             "type": [
                 "null",

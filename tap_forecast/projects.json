@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "id": {
+            "type": [
+              "integer"
+            ]
+        },
         "company_project_id": {
             "type": [
                 "null",

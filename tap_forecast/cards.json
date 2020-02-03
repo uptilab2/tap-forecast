@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "id": {
+            "type": [
+              "integer"
+            ]
+        },
         "company_card_id": {
             "type": [
                 "null",

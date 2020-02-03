@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "id": {
+            "type": [
+              "integer"
+            ]
+        },
         "connected_project_workflow_column": {
             "type": [
                 "null",
