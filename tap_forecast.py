@@ -14,13 +14,15 @@ REQUIRED_CONFIG_KEYS = ['API_KEY', 'API_URL']
 
 NO_ID_PROPERTIES = ['team', 'rate_card_rates']
 
+
 class AuthException(Exception):
     pass
+
 
 class NotFoundException(Exception):
     pass
 
-# TODO : real raise auth or not found, hope this doesn't send pagination
+
 def request_get(url, headers={}):
     resp = session.request(method='get', url=url)
     if resp.status_code == 401:
@@ -31,7 +33,7 @@ def request_get(url, headers={}):
         raise NotFoundException(resp.text)
     return resp
 
-# TODO : generic func to record and bookmark the data
+
 def get_all_data(name, schema, state, url, mdata=None):
     response = request_get(url+name)
     if response:
@@ -42,9 +44,12 @@ def get_all_data(name, schema, state, url, mdata=None):
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema)
                 singer.write_record(name, rec, time_extracted=extraction_time)
-                singer.write_bookmark(state, name, {'since': singer.utils.strftime(extraction_time)})
+                singer.write_bookmark(state, name, {
+                    'since': singer.utils.strftime(extraction_time)
+                })
                 counter.increment()
     return state
+
 
 def get_all_data_with_projects(name, schema, state, url, mdata=None):
     for project_id in get_all_objects_id(url, 'projects'):
@@ -56,10 +61,14 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                    singer.write_record(name, rec, time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, {'since': singer.utils.strftime(extraction_time)})
+                    singer.write_record(name, rec,
+                                        time_extracted=extraction_time)
+                    singer.write_bookmark(state, name, {
+                        'since': singer.utils.strftime(extraction_time)
+                    })
                     counter.increment()
     return state
+
 
 def get_all_objects_id(url, name):
     response = request_get(url+name)
@@ -67,6 +76,7 @@ def get_all_objects_id(url, name):
         objects = response.json()
         for obj in objects:
             yield obj.get('id')
+
 
 def get_all_rate_card_rates(name, schema, state, url, mdata=None):
     for rate_card_id in get_all_objects_id(url, 'rate_cards'):
@@ -77,13 +87,17 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
             with metrics.record_counter(name) as counter:
                 records = response.json()
                 extraction_time = singer.utils.now()
-                for records in records:
-                    with metrics.record_counter(name) as counter:
+                for record in records:
+                    with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                    singer.write_record(name, rec, time_extracted=extraction_time)
-                    singer.write_bookmark(state, name, {'since': singer.utils.strftime(extraction_time)})
+                    singer.write_record(name, rec,
+                                        time_extracted=extraction_time)
+                    singer.write_bookmark(state, name, {
+                        'since': singer.utils.strftime(extraction_time)
+                    })
                     counter.increment()
     return state
+
 
 def get_catalog():
     raw_schemas = load_schemas()
@@ -91,7 +105,7 @@ def get_catalog():
 
     for schema_name, schema in raw_schemas.items():
 
-        # get metadata for each field
+        # TODO: get metadata for each field
         # mdata = populate_metadata(schema_name, schema)
 
         # create and add catalog entry
@@ -106,6 +120,7 @@ def get_catalog():
 
     return {'streams': streams}
 
+
 def load_schemas():
     schemas = {}
 
@@ -117,6 +132,7 @@ def load_schemas():
             schemas[file_raw] = json.load(file)
 
     return schemas
+
 
 def translate_state(state, catalog, organization):
     nested_dict = lambda: collections.defaultdict(nested_dict)
@@ -131,7 +147,8 @@ def translate_state(state, catalog, organization):
                 new_state['bookmarks'][org][stream_name]['since'] = bookmarks.get_bookmark(state, stream_name, 'since')
 
     return new_state
-    
+
+
 CUSTOM_SYNC_FUNC = {
     'milestones': get_all_data_with_projects,
     'team': get_all_data_with_projects,
@@ -142,6 +159,7 @@ CUSTOM_SYNC_FUNC = {
     'workflow_columns': get_all_data_with_projects,
 }
 
+
 def do_sync_mode(config, state, catalog):
     session.headers.update({'X-FORECAST-API-KEY': config['API_KEY']})
 
@@ -150,7 +168,7 @@ def do_sync_mode(config, state, catalog):
     for stream in catalog['streams']:
         stream_id = stream['tap_stream_id']
         stream_schema = stream['schema']
-        
+
         singer.write_schema(stream_id, stream_schema, stream['key_properties'])
 
         # properties who need id from another properties
@@ -162,13 +180,16 @@ def do_sync_mode(config, state, catalog):
 
         singer.write_state(state)
 
+
 def do_discover():
     catalog = get_catalog()
     # dump catalog
     print(json.dumps(catalog, indent=2))
 
+
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+
 
 @singer.utils.handle_top_exception(logger)
 def main():
