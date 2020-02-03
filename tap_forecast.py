@@ -109,7 +109,7 @@ def get_catalog():
                 schema,
                 schema_name,
                 ['id'] if schema_name not in NO_ID_PROPERTIES else None,
-                'updated-at',
+                'updated_at',
             ),
             'key_properties': ['id'] if schema_name in NO_ID_PROPERTIES else ''
         }
