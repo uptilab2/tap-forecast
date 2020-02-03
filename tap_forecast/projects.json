@@ -1,0 +1,179 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "company_project_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "stage": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "status": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "status_description": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "description": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "color": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "estimation_units": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "minutes_per_estimation_point": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "budget": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "billable": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "use_sprints": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "sprint_length": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "start_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "end_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "card_levels": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of company card"
+        },
+        "client": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of company card"
+        },
+        "rate_card": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "remaining_auto_calculated": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "use_project_allocations": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "labels": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            }
+        },
+        "external_refs": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

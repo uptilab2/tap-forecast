@@ -1,0 +1,79 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "company_connected_project_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "color": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "estimation_units": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "use_sprints": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "sprint_length": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "minutes_per_estimation_point": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

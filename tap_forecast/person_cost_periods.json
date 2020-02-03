@@ -1,0 +1,67 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "person_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "cost": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "start_year": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "start_month": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "start_day": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

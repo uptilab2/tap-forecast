@@ -1,0 +1,55 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "person_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "project_role": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "project_contact": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

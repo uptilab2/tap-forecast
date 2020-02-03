@@ -1,0 +1,122 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "project": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of project"
+        },
+        "non_project_time": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "connected_project": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "person": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "start_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "end_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "monday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "tuesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "wednesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "thursday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "friday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "saturday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "sunday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "notes": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

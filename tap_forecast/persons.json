@@ -1,0 +1,137 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "first_name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "last_name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "email": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "user_type": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "client_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "holiday_calendar_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "monday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "tuesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "wednesday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "thursday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "friday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "saturday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "sunday": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "active": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "default_role": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "cost": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "language": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

@@ -1,0 +1,178 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "company_card_id": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of company card"
+        },
+        "title": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "description": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "project_id": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of project"
+        },
+        "role": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of role"
+        },
+        "low_estimate": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "high_estimate": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "forecast": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "remaining": {
+            "type": [
+                "null",
+                "number"
+            ]
+        },
+        "approved": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "start_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "end_date": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "bug": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "un_billable": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "blocked": {
+            "type": [
+                "null",
+                "boolean"
+            ]
+        },
+        "sprint": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of sprint"
+        },
+        "workflow_column": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of workflow column"
+        },
+        "milestone": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of milestone"
+        },
+        "assigned_persons": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            }
+        },
+        "labels": {
+            "type": "array",
+            "items": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            }
+        },
+        "owner_id": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "updated_by": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of person"
+        },
+        "created_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "updated_at": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        }
+    }
+}

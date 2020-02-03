@@ -1,0 +1,4 @@
+
+        [console_scripts]
+        tap-forecast=tap_forecast:main
+    
