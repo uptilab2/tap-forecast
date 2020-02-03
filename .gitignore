@@ -2,3 +2,5 @@ venv
 .vscode
 tap_forecast.egg-info
 __pycache__
+properties.json
+config.json
