@@ -46,7 +46,7 @@ This tap:
 2. Get your Forecast api key and create the config file
 
     Create a JSON file containing the api key
-        ```json
+    ```json
     {"API_KEY": "your-api-key"}
     ```
 
@@ -74,7 +74,6 @@ This tap:
         }
     ...
     ```
-
 
 5. Run the application
 
