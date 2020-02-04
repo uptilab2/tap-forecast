@@ -2,7 +2,6 @@ import os
 import json
 import singer
 import singer.metrics as metrics
-import singer.bookmarks as bookmarks
 import singer.metadata as metadata
 import requests
 import collections
@@ -37,16 +36,30 @@ def request_get(url, headers={}):
 def get_all_data(name, schema, state, url, mdata=None):
     response = request_get(url+name)
     if response:
+        # get bookmark and if doesn't exists get['start_date'] as first init
+        bookmark = singer.get_bookmark(state, name, 'updated_at')
+        if bookmark is None:
+            args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+            bookmark = args.config['start_date']
+        new_bookmark = bookmark
+
         with metrics.record_counter(name) as counter:
             records = response.json()
             extraction_time = singer.utils.now()
             for record in records:
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema)
-                singer.write_record(name, rec, time_extracted=extraction_time)
-                singer.write_bookmark(state, name, 'updated_at',
-                                      singer.utils.strftime(extraction_time))
-                counter.increment()
+                    if rec.get('updated_at') < bookmark:
+                        singer.write_record(name, rec,
+                                            time_extracted=extraction_time)
+                        counter.increment()
+                    new_bookmark = max(new_bookmark, rec['updated_at'])
+                singer.write_bookmark(
+                    state,
+                    name,
+                    'updated_at',
+                    new_bookmark
+                )
     return state
 
 
@@ -54,21 +67,30 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
     for project_id in get_all_objects_id(url, 'projects'):
         response = request_get(url+f'projects/{project_id}/{name}')
         if response:
+            # get bookmark and if doesn't exists get['start_date'] as first init
+            bookmark = singer.get_bookmark(state, name, 'updated_at')
+            if bookmark is None:
+                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+                bookmark = args.config['start_date']
+            new_bookmark = bookmark
+
             with metrics.record_counter(name) as counter:
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                    singer.write_record(name, rec,
-                                        time_extracted=extraction_time)
+                        if rec.get('updated_at') < bookmark:
+                            singer.write_record(name, rec,
+                                                time_extracted=extraction_time)
+                            counter.increment()
+
                     singer.write_bookmark(
                         state,
                         name,
                         'updated_at',
-                        singer.utils.strftime(extraction_time)
+                        new_bookmark
                     )
-                    counter.increment()
     return state
 
 
@@ -84,21 +106,28 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
     for rate_card_id in get_all_objects_id(url, 'rate_cards'):
         response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
         if response:
+            # get bookmark and if doesn't exists get['start_date'] as first init
+            bookmark = singer.get_bookmark(state, name, 'updated_at')
+            if bookmark is None:
+                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+                bookmark = args.config['start_date']
+            new_bookmark = bookmark
             with metrics.record_counter(name) as counter:
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                    singer.write_record(name, rec,
-                                        time_extracted=extraction_time)
+                        if rec.get('updated_at') < bookmark:
+                            singer.write_record(name, rec,
+                                                time_extracted=extraction_time)
+                            counter.increment()
                     singer.write_bookmark(
                         state,
                         name,
                         'updated_at',
-                        singer.utils.strftime(extraction_time)
+                        new_bookmark
                     )
-                    counter.increment()
     return state
 
 
@@ -114,15 +143,15 @@ def get_catalog():
             'tap_stream_id': schema_name,
             'schema': schema,
             'metadata': metadata.get_standard_metadata(
-                schema,
-                schema_name,
-                ['id'] if schema_name not in NO_ID_PROPERTIES else None,
-                'updated_at',
+                schema=schema,
+                schema_name=schema_name,
+                key_properties=['id'] if schema_name not in NO_ID_PROPERTIES else None,
+                valid_replication_keys=['updated_at'],
+                replication_method="INCREMENTAL"
             ),
-            'key_properties': ['id'] if schema_name in NO_ID_PROPERTIES else ''
+            'key_properties': ['id'] if schema_name not in NO_ID_PROPERTIES else None
         }
         streams.append(catalog_entry)
-
     return {'streams': streams}
 
 
@@ -136,19 +165,6 @@ def load_schemas():
             schemas[file_raw] = json.load(file)
 
     return schemas
-
-
-def translate_state(state, catalog):
-    nested_dict = lambda: collections.defaultdict(nested_dict)
-    new_state = nested_dict()
-
-    for stream in catalog['streams']:
-        stream_name = stream['tap_stream_id']
-        if bookmarks.get_bookmark(state, stream_name, 'updated_at'):
-            new_state['bookmarks'][stream_name]['updated_at'] = bookmarks. \
-                get_bookmark(state, stream_name, 'updated_at')
-
-    return new_state
 
 
 CUSTOM_SYNC_FUNC = {
@@ -209,9 +225,8 @@ def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     if args.discover:
         do_discover()
-    else:
-        catalog = args.catalog if args.catalog else get_catalog()
-        do_sync_mode(args.config, args.state, catalog)
+    elif args.catalog:
+        do_sync_mode(args.config, args.state, args.catalog)
 
 
 if __name__ == '__main__':
