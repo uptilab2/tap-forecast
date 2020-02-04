@@ -152,7 +152,6 @@ def get_catalog():
             'key_properties': ['id'] if schema_name not in NO_ID_PROPERTIES else None
         }
         streams.append(catalog_entry)
-    logger.info(streams)
     return {'streams': streams}
 
 
@@ -226,9 +225,8 @@ def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     if args.discover:
         do_discover()
-    else:
-        catalog = args.catalog if args.catalog else get_catalog()
-        do_sync_mode(args.config, args.state, catalog)
+    elif args.catalog:
+        do_sync_mode(args.config, args.state, args.catalog)
 
 
 if __name__ == '__main__':
