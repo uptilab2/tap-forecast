@@ -138,7 +138,7 @@ def load_schemas():
     return schemas
 
 
-def translate_state(state, catalog, organization):
+def translate_state(state, catalog):
     nested_dict = lambda: collections.defaultdict(nested_dict)
     new_state = nested_dict()
 
@@ -169,7 +169,7 @@ def get_selected_streams(catalog):
     breadcrumb and mdata with a 'selected' entry
     '''
     selected_streams = []
-    for stream in catalog['streams']:
+    for stream in catalog:
         stream_metadata = stream['metadata']
         if stream['schema'].get('selected', False):
             selected_streams.append(stream['tap_stream_id'])
@@ -183,31 +183,35 @@ def get_selected_streams(catalog):
 
 
 def do_sync_mode(config, state, catalog):
+    logger.info('Starting Sync..')
     session.headers.update({'X-FORECAST-API-KEY': config['API_KEY']})
 
-    selected_stream_ids = get_selected_streams(catalog)
+    for catalog_entry in catalog.get_selected_streams(state):
+        logger.info(f'{catalog_entry.stream} is selected')
 
-    state = translate_state(state, catalog, ['uptilab'])
+        singer.write_schema(catalog_entry.stream, catalog_entry.to_dict(),
+                            catalog_entry.key_properties)
 
-    for stream in catalog['streams']:
-        stream_id = stream['tap_stream_id']
-        stream_schema = stream['schema']
+        # properties who need id from another properties
+        if catalog_entry.stream in CUSTOM_SYNC_FUNC:
+            sync_func = CUSTOM_SYNC_FUNC[catalog_entry.stream]
+            state = sync_func(
+                catalog_entry.stream,
+                catalog_entry.to_dict(),
+                state,
+                url=API_URL
+            )
+        else:
+            state = get_all_data(
+                catalog_entry.stream,
+                catalog_entry.to_dict(),
+                state,
+                url=API_URL
+            )
 
-        if stream_id in selected_stream_ids:
-            logger.info(f'{stream_id} is selected')
-            singer.write_schema(stream_id, stream_schema,
-                                stream['key_properties'])
+        singer.write_state(state)
 
-            # properties who need id from another properties
-            if stream_id in CUSTOM_SYNC_FUNC:
-                sync_func = CUSTOM_SYNC_FUNC[stream_id]
-                state = sync_func(stream['stream'], stream_schema, state,
-                                  url=API_URL)
-            else:
-                state = get_all_data(stream['stream'], stream_schema, state,
-                                     url=API_URL)
-
-            singer.write_state(state)
+    logger.info('Finished Sync..')
 
 
 def do_discover():
@@ -226,7 +230,7 @@ def main():
     if args.discover:
         do_discover()
     else:
-        catalog = args.properties if args.properties else get_catalog()
+        catalog = args.catalog if args.catalog else get_catalog()
         do_sync_mode(args.config, args.state, catalog)
 
 
