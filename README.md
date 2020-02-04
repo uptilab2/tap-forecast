@@ -53,7 +53,7 @@ This tap:
 3. Run the tap in discovery mode to get properties.json file
 
     ```bash
-    tap-forecast --config config.json --discover > properties.json
+    tap-forecast --config config.json --discover > catalog.json
     ```
 
 4. In the properties.json file, select the streams to sync
@@ -80,7 +80,7 @@ This tap:
     `tap-forecast` can be run with:
 
     ```bash
-    tap-forecast --config config.json --properties properties.json
+    tap-forecast --config config.json --catalog catalog.json
     ```
 
 ---
