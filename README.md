@@ -12,7 +12,7 @@ This tap:
   - [Clients](https://github.com/Forecast-it/API/blob/master/sections/clients.md#clients)
   - [Connected projects](https://github.com/Forecast-it/API/blob/master/sections/connected_projects.md#connected_projects)
   - [Expense items](https://github.com/Forecast-it/API/blob/master/sections/expense_items.md#expense_items)
-  - [Holiday calendar entries](https://github.com/Forecast-it/API/blob/master/sections/holiday_calendars_entries.md#holiday_calendars_entries)
+  - [Holiday calendar entries](https://github.com/Forecast-it/API/blob/master/sections/holiday_calendar_entries.md#holiday_calendar_entries)
   - [Holiday calendar](https://github.com/Forecast-it/API/blob/master/sections/holiday_calendars.md#holiday_calendars)
   - [Labels](https://github.com/Forecast-it/API/blob/master/sections/labels.md#labels)
   - [Milestones](https://github.com/Forecast-it/API/blob/master/sections/milestones.md#milestones)
