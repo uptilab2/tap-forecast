@@ -162,26 +162,6 @@ CUSTOM_SYNC_FUNC = {
 }
 
 
-def get_selected_streams(catalog):
-    '''
-    Gets selected streams.  Checks schema's 'selected'
-    first -- and then checks metadata, looking for an empty
-    breadcrumb and mdata with a 'selected' entry
-    '''
-    selected_streams = []
-    for stream in catalog:
-        stream_metadata = stream['metadata']
-        if stream['schema'].get('selected', False):
-            selected_streams.append(stream['tap_stream_id'])
-        else:
-            for entry in stream_metadata:
-                # stream metadata will have empty breadcrumb
-                if not entry['breadcrumb'] and entry['metadata'].get('selected', None):
-                    selected_streams.append(stream['tap_stream_id'])
-
-    return selected_streams
-
-
 def do_sync_mode(config, state, catalog):
     logger.info('Starting Sync..')
     session.headers.update({'X-FORECAST-API-KEY': config['API_KEY']})
