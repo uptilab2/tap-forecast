@@ -2,7 +2,6 @@ import os
 import json
 import singer
 import singer.metrics as metrics
-import singer.bookmarks as bookmarks
 import singer.metadata as metadata
 import requests
 import collections
@@ -38,7 +37,7 @@ def get_all_data(name, schema, state, url, mdata=None):
     response = request_get(url+name)
     if response:
         # get bookmark and if doesn't exists get['start_date'] as first init
-        bookmark = bookmarks.get_bookmark(state, name, 'updated_at')
+        bookmark = singer.get_bookmark(state, name, 'updated_at')
         if bookmark is None:
             args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
             bookmark = args.config['start_date']
@@ -69,7 +68,7 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
         response = request_get(url+f'projects/{project_id}/{name}')
         if response:
             # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = bookmarks.get_bookmark(state, name, 'updated_at')
+            bookmark = singer.get_bookmark(state, name, 'updated_at')
             if bookmark is None:
                 args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
                 bookmark = args.config['start_date']
@@ -108,7 +107,7 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
         response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
         if response:
             # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = bookmarks.get_bookmark(state, name, 'updated_at')
+            bookmark = singer.get_bookmark(state, name, 'updated_at')
             if bookmark is None:
                 args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
                 bookmark = args.config['start_date']
@@ -144,15 +143,16 @@ def get_catalog():
             'tap_stream_id': schema_name,
             'schema': schema,
             'metadata': metadata.get_standard_metadata(
-                schema,
-                schema_name,
-                ['id'] if schema_name not in NO_ID_PROPERTIES else None,
-                'updated_at',
+                schema=schema,
+                schema_name=schema_name,
+                key_properties=['id'] if schema_name not in NO_ID_PROPERTIES else None,
+                valid_replication_keys=['updated_at'],
+                replication_method="INCREMENTAL"
             ),
-            'key_properties': ['id'] if schema_name in NO_ID_PROPERTIES else ''
+            'key_properties': ['id'] if schema_name not in NO_ID_PROPERTIES else None
         }
         streams.append(catalog_entry)
-
+    logger.info(streams)
     return {'streams': streams}
 
 
