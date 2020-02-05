@@ -10,6 +10,11 @@
               "integer"
             ]
         },
+        "project_id": {
+            "type": [
+                "integer"
+            ]
+        },
         "connected_project_sprint": {
             "type": [
                 "null",

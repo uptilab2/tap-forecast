@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "project_id": {
+            "type": [
+                "integer"
+            ]
+        },
         "person_id": {
             "type": [
                 "null",
