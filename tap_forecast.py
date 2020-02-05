@@ -56,7 +56,7 @@ def get_all_data(name, schema, state, url, mdata=None):
             extraction_time = singer.utils.now()
             for record in records:
                 with singer.Transformer() as transformer:
-                    rec = transformer.transform(record, schema)
+                    rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
                     # TESTING IF ROW IS UPDATED OR NAH
                     if rec.get('updated_at') > bookmark:
@@ -72,7 +72,7 @@ def get_all_data(name, schema, state, url, mdata=None):
     return state
 
 
-def get_all_data_with_projects(name, schema, state, url, mdata=None):
+def get_all_data_with_projects(name, schema, state, url, mdata):
     with metrics.record_counter(name) as counter:
         for project_id in get_all_objects_id(url, 'projects'):
             response = request_get(url+f'projects/{project_id}/{name}')
@@ -89,7 +89,7 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         record['project_id'] = project_id
-                        rec = transformer.transform(record, schema)
+                        rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
@@ -129,7 +129,7 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         record['rate_card_id'] = rate_card_id
-                        rec = transformer.transform(record, schema)
+                        rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
@@ -159,8 +159,8 @@ def get_catalog():
                 schema=schema,
                 schema_name=schema_name,
                 key_properties=['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-                # valid_replication_keys=['updated_at'],
-                # replication_method="INCREMENTAL" idk if we need to replicat row or they will be update
+                valid_replication_keys=['updated_at'],
+                replication_method="INCREMENTAL"
             ),
             'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name]
         }
@@ -194,7 +194,7 @@ CUSTOM_SYNC_FUNC = {
 def do_sync_mode(config, state, catalog):
     logger.info('Starting Sync..')
     session.headers.update({'X-FORECAST-API-KEY': config['API_KEY']})
-
+    
     for catalog_entry in catalog.get_selected_streams(state):
         logger.info(f'{catalog_entry.stream} is selected')
         schema = catalog_entry.schema.to_dict()
@@ -208,14 +208,16 @@ def do_sync_mode(config, state, catalog):
                 catalog_entry.stream,
                 schema,
                 state,
-                url=API_URL
+                url=API_URL,
+                mdata=catalog_entry.metadata
             )
         else:
             state = get_all_data(
                 catalog_entry.stream,
                 schema,
                 state,
-                url=API_URL
+                url=API_URL,
+                mdata=catalog_entry.metadata
             )
 
         singer.write_state(state)
