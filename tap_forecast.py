@@ -89,6 +89,7 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
+                        rec['project_id'] = project_id
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
@@ -128,6 +129,7 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
+                        rec['rate_card_id'] = rate_card_id
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
