@@ -59,7 +59,7 @@ def get_all_data(name, schema, state, url, mdata=None):
                     rec = transformer.transform(record, schema)
                     new_bookmark = max(new_bookmark, rec['updated_at'])
                     # TESTING IF ROW IS UPDATED OR NAH
-                    if rec.get('updated_at') < bookmark:
+                    if rec.get('updated_at') > bookmark:
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
@@ -73,17 +73,17 @@ def get_all_data(name, schema, state, url, mdata=None):
 
 
 def get_all_data_with_projects(name, schema, state, url, mdata=None):
-    for project_id in get_all_objects_id(url, 'projects'):
-        response = request_get(url+f'projects/{project_id}/{name}')
-        if response:
-            # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = singer.get_bookmark(state, name, 'updated_at')
-            if bookmark is None:
-                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-                bookmark = args.config['start_date']
-            new_bookmark = bookmark
-
-            with metrics.record_counter(name) as counter:
+    with metrics.record_counter(name) as counter:
+        for project_id in get_all_objects_id(url, 'projects'):
+            response = request_get(url+f'projects/{project_id}/{name}')
+            if response:
+                # get bookmark and if doesn't exists get['start_date'] as first init
+                bookmark = singer.get_bookmark(state, name, 'updated_at')
+                if bookmark is None:
+                    args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+                    bookmark = args.config['start_date']
+                new_bookmark = bookmark
+                
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
@@ -91,11 +91,10 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                         record['project_id'] = project_id
                         rec = transformer.transform(record, schema)
                         new_bookmark = max(new_bookmark, rec['updated_at'])
-                        if rec.get('updated_at') < bookmark:
+                        if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
-
                     singer.write_bookmark(
                         state,
                         name,
@@ -114,16 +113,17 @@ def get_all_objects_id(url, name):
 
 
 def get_all_rate_card_rates(name, schema, state, url, mdata=None):
-    for rate_card_id in get_all_objects_id(url, 'rate_cards'):
-        response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
-        if response:
-            # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = singer.get_bookmark(state, name, 'updated_at')
-            if bookmark is None:
-                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-                bookmark = args.config['start_date']
-            new_bookmark = bookmark
-            with metrics.record_counter(name) as counter:
+    with metrics.record_counter(name) as counter:
+        for rate_card_id in get_all_objects_id(url, 'rate_cards'):
+            response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
+            if response:
+                # get bookmark and if doesn't exists get['start_date'] as first init
+                bookmark = singer.get_bookmark(state, name, 'updated_at')
+                if bookmark is None:
+                    args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+                    bookmark = args.config['start_date']
+                new_bookmark = bookmark
+
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
