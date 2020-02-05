@@ -67,7 +67,7 @@
         "budget": {
             "type": [
                 "null",
-                "integer"
+                "number"
             ]
         },
         "billable": {

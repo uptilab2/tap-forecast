@@ -44,7 +44,6 @@ def request_get(url, headers={}):
 def get_all_data(name, schema, state, url, mdata=None):
     response = request_get(url+name)
     if response:
-        # get bookmark and if doesn't exists get['start_date'] as first init
         bookmark = singer.get_bookmark(state, name, 'updated_at')
         if bookmark is None:
             args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
@@ -58,7 +57,6 @@ def get_all_data(name, schema, state, url, mdata=None):
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
-                    # TESTING IF ROW IS UPDATED OR NAH
                     if rec.get('updated_at') > bookmark:
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
@@ -77,7 +75,6 @@ def get_all_data_with_projects(name, schema, state, url, mdata):
         for project_id in get_all_objects_id(url, 'projects'):
             response = request_get(url+f'projects/{project_id}/{name}')
             if response:
-                # get bookmark and if doesn't exists get['start_date'] as first init
                 bookmark = singer.get_bookmark(state, name, 'updated_at')
                 if bookmark is None:
                     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
@@ -162,7 +159,10 @@ def get_catalog():
                 valid_replication_keys=['updated_at'],
                 replication_method="INCREMENTAL"
             ),
-            'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name]
+            'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
+            'replication_method': "INCREMENTAL",
+            'replication_key': 'updated_at',
+
         }
         streams.append(catalog_entry)
     return {'streams': streams}
@@ -227,7 +227,6 @@ def do_sync_mode(config, state, catalog):
 
 def do_discover():
     catalog = get_catalog()
-    # dump catalog
     print(json.dumps(catalog, indent=2))
 
 
