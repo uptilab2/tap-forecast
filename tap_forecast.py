@@ -49,11 +49,11 @@ def get_all_data(name, schema, state, url, mdata=None):
             for record in records:
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema)
-                    if rec.get('updated_at') < bookmark:
+                    new_bookmark = max(new_bookmark, rec['updated_at'])
+                    if rec.get('updated_at') > bookmark:
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
-                    new_bookmark = max(new_bookmark, rec['updated_at'])
                 singer.write_bookmark(
                     state,
                     name,
@@ -80,7 +80,8 @@ def get_all_data_with_projects(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                        if rec.get('updated_at') < bookmark:
+                        new_bookmark = max(new_bookmark, rec['updated_at'])
+                        if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
@@ -118,7 +119,8 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
                 for record in records:
                     with singer.Transformer() as transformer:
                         rec = transformer.transform(record, schema)
-                        if rec.get('updated_at') < bookmark:
+                        new_bookmark = max(new_bookmark, rec['updated_at'])
+                        if rec.get('updated_at') > bookmark:
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
