@@ -5,6 +5,11 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "rate_card_id": {
+            "type": [
+                "integer"
+            ]
+        },
         "role": {
             "type": [
                 "null",

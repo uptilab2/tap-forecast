@@ -11,7 +11,15 @@ logger = singer.get_logger()
 
 REQUIRED_CONFIG_KEYS = ['API_KEY']
 API_URL = "https://api.forecast.it/api/v1/"
-NO_ID_PROPERTIES = ['team', 'rates']
+CUSTOM_KEY_PROPERTIES = {
+    'team': ['project_id'],
+    'rates': ['rate_card_id'],
+    'milestones': ['id', 'project_id'],
+    'repeating_cards': ['id', 'project_id'],
+    'sprints': ['id', 'project_id'],
+    'sub_tasks': ['id', 'project_id'],
+    'workflow_columns': ['id', 'project_id']
+}
 
 
 class AuthException(Exception):
@@ -50,7 +58,8 @@ def get_all_data(name, schema, state, url, mdata=None):
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema)
                     new_bookmark = max(new_bookmark, rec['updated_at'])
-                    if rec.get('updated_at') > bookmark:
+                    # TESTING IF ROW IS UPDATED OR NAH
+                    if rec.get('updated_at') < bookmark:
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
@@ -147,11 +156,11 @@ def get_catalog():
             'metadata': metadata.get_standard_metadata(
                 schema=schema,
                 schema_name=schema_name,
-                key_properties=['id'] if schema_name not in NO_ID_PROPERTIES else None,
-                valid_replication_keys=['updated_at'],
-                replication_method="INCREMENTAL"
+                key_properties=['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
+                # valid_replication_keys=['updated_at'],
+                # replication_method="INCREMENTAL" idk if we need to replicat row or they will be update
             ),
-            'key_properties': ['id'] if schema_name not in NO_ID_PROPERTIES else None
+            'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name]
         }
         streams.append(catalog_entry)
     return {'streams': streams}
