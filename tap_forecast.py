@@ -184,7 +184,8 @@ def do_sync_mode(config, state, catalog):
 
     for catalog_entry in catalog.get_selected_streams(state):
         logger.info(f'{catalog_entry.stream} is selected')
-        singer.write_schema(catalog_entry.stream, catalog_entry.schema,
+        schema = catalog_entry.schema.to_dict()
+        singer.write_schema(catalog_entry.stream, schema,
                             catalog_entry.key_properties)
 
         # properties who need id from another properties
@@ -192,14 +193,14 @@ def do_sync_mode(config, state, catalog):
             sync_func = CUSTOM_SYNC_FUNC[catalog_entry.stream]
             state = sync_func(
                 catalog_entry.stream,
-                catalog_entry.schema,
+                schema,
                 state,
                 url=API_URL
             )
         else:
             state = get_all_data(
                 catalog_entry.stream,
-                catalog_entry.schema,
+                schema,
                 state,
                 url=API_URL
             )
