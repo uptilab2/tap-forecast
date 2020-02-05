@@ -46,25 +46,25 @@
         "low_estimate": {
             "type": [
                 "null",
-                "number"
+                "integer"
             ]
         },
         "high_estimate": {
             "type": [
                 "null",
-                "number"
+                "integer"
             ]
         },
         "forecast": {
             "type": [
                 "null",
-                "number"
+                "integer"
             ]
         },
         "remaining": {
             "type": [
                 "null",
-                "number"
+                "integer"
             ]
         },
         "approved": {
