@@ -56,7 +56,8 @@ def get_all_data(name, schema, state, url, start_date, replication_method, mdata
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
-                    if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or replication_method == 'FULL_TABLE':
+                    if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                    (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
@@ -86,7 +87,8 @@ def get_all_data_with_projects(name, schema, state, url, start_date, replication
                         record['project_id'] = project_id
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
-                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or replication_method == 'FULL_TABLE':
+                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
@@ -124,7 +126,8 @@ def get_all_rate_card_rates(name, schema, state, url, start_date, replication_me
                         record['rate_card_id'] = rate_card_id
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
-                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or replication_method == 'FULL_TABLE':
+                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
