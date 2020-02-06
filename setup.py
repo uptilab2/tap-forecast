@@ -6,8 +6,7 @@ setup(
     name='tap-forecast',
     version='1.0.0',
     description='Singer.io tap for extracting data from the Forecast API',
-    author='Eric',
-    url='http://singer.io',
+    author='ngteric',
     classifiers=['Programming Language :: Python :: 3 :: Only'],
     py_modules=['tap_forecast'],
     install_requires=[
