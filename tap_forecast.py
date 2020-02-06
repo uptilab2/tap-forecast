@@ -16,6 +16,7 @@ CUSTOM_KEY_PROPERTIES = {
     'rates': ['rate_card_id'],
     'milestones': ['id', 'project_id'],
     'repeating_cards': ['id', 'project_id'],
+    'expense_items': ['id', 'project_id'],
     'sprints': ['id', 'project_id'],
     'sub_tasks': ['id', 'project_id'],
     'workflow_columns': ['id', 'project_id']
@@ -41,14 +42,12 @@ def request_get(url, headers={}):
     return resp
 
 
-def get_all_data(name, schema, state, url, mdata=None):
+def get_all_data(name, schema, state, url, start_date, replication_method, mdata=None):
     response = request_get(url+name)
     if response:
-        # get bookmark and if doesn't exists get['start_date'] as first init
         bookmark = singer.get_bookmark(state, name, 'updated_at')
         if bookmark is None:
-            args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-            bookmark = args.config['start_date']
+            bookmark = start_date
         new_bookmark = bookmark
 
         with metrics.record_counter(name) as counter:
@@ -56,10 +55,10 @@ def get_all_data(name, schema, state, url, mdata=None):
             extraction_time = singer.utils.now()
             for record in records:
                 with singer.Transformer() as transformer:
-                    rec = transformer.transform(record, schema)
+                    rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
-                    # TESTING IF ROW IS UPDATED OR NAH
-                    if rec.get('updated_at') < bookmark:
+                    if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                    (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
@@ -72,30 +71,28 @@ def get_all_data(name, schema, state, url, mdata=None):
     return state
 
 
-def get_all_data_with_projects(name, schema, state, url, mdata=None):
-    for project_id in get_all_objects_id(url, 'projects'):
-        response = request_get(url+f'projects/{project_id}/{name}')
-        if response:
-            # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = singer.get_bookmark(state, name, 'updated_at')
-            if bookmark is None:
-                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-                bookmark = args.config['start_date']
-            new_bookmark = bookmark
-
-            with metrics.record_counter(name) as counter:
+def get_all_data_with_projects(name, schema, state, url, start_date, replication_method, mdata=None):
+    with metrics.record_counter(name) as counter:
+        for project_id in get_all_objects_id(url, 'projects'):
+            response = request_get(url+f'projects/{project_id}/{name}')
+            if response:
+                bookmark = singer.get_bookmark(state, name, 'updated_at')
+                if bookmark is None:
+                    bookmark = start_date
+                new_bookmark = bookmark
+                
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
                     with singer.Transformer() as transformer:
                         record['project_id'] = project_id
-                        rec = transformer.transform(record, schema)
+                        rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
-                        if rec.get('updated_at') < bookmark:
+                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
-
                     singer.write_bookmark(
                         state,
                         name,
@@ -113,25 +110,25 @@ def get_all_objects_id(url, name):
             yield obj.get('id')
 
 
-def get_all_rate_card_rates(name, schema, state, url, mdata=None):
-    for rate_card_id in get_all_objects_id(url, 'rate_cards'):
-        response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
-        if response:
-            # get bookmark and if doesn't exists get['start_date'] as first init
-            bookmark = singer.get_bookmark(state, name, 'updated_at')
-            if bookmark is None:
-                args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
-                bookmark = args.config['start_date']
-            new_bookmark = bookmark
-            with metrics.record_counter(name) as counter:
+def get_all_rate_card_rates(name, schema, state, url, start_date, replication_method, mdata=None):
+    with metrics.record_counter(name) as counter:
+        for rate_card_id in get_all_objects_id(url, 'rate_cards'):
+            response = request_get(url+f'rate_cards/{rate_card_id}/{name}')
+            if response:
+                bookmark = singer.get_bookmark(state, name, 'updated_at')
+                if bookmark is None:
+                    bookmark = start_date
+                new_bookmark = bookmark
+
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
                     with singer.Transformer() as transformer:
                         record['rate_card_id'] = rate_card_id
-                        rec = transformer.transform(record, schema)
+                        rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
-                        if rec.get('updated_at') > bookmark:
+                        if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
+                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
@@ -144,7 +141,7 @@ def get_all_rate_card_rates(name, schema, state, url, mdata=None):
     return state
 
 
-def get_catalog():
+def get_catalog(replication_method):
     raw_schemas = load_schemas()
     streams = []
 
@@ -159,10 +156,12 @@ def get_catalog():
                 schema=schema,
                 schema_name=schema_name,
                 key_properties=['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-                # valid_replication_keys=['updated_at'],
-                # replication_method="INCREMENTAL" idk if we need to replicat row or they will be update
+                valid_replication_keys=['updated_at'],
+                replication_method=replication_method if replication_method else None
             ),
-            'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name]
+            'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
+            'replication_key': 'updated_at',
+            'replication_method': replication_method if replication_method else None,
         }
         streams.append(catalog_entry)
     return {'streams': streams}
@@ -171,7 +170,7 @@ def get_catalog():
 def load_schemas():
     schemas = {}
     for filename in os.listdir(get_abs_path('tap_forecast')):
-        logger.info(f'extracting {filename} ========================')
+        logger.info(f'extracting {filename}..')
         path = get_abs_path('tap_forecast') + '/' + filename
         file_raw = filename.replace('.json', '')
         with open(path) as file:
@@ -188,13 +187,14 @@ CUSTOM_SYNC_FUNC = {
     'sprints': get_all_data_with_projects,
     'sub_tasks': get_all_data_with_projects,
     'workflow_columns': get_all_data_with_projects,
+    'expense_items': get_all_data_with_projects
 }
 
 
 def do_sync_mode(config, state, catalog):
     logger.info('Starting Sync..')
     session.headers.update({'X-FORECAST-API-KEY': config['API_KEY']})
-
+    
     for catalog_entry in catalog.get_selected_streams(state):
         logger.info(f'{catalog_entry.stream} is selected')
         schema = catalog_entry.schema.to_dict()
@@ -208,14 +208,20 @@ def do_sync_mode(config, state, catalog):
                 catalog_entry.stream,
                 schema,
                 state,
-                url=API_URL
+                url=API_URL,
+                mdata=catalog_entry.metadata,
+                start_date=config['start_date'],
+                replication_method=catalog_entry.replication_method
             )
         else:
             state = get_all_data(
                 catalog_entry.stream,
                 schema,
                 state,
-                url=API_URL
+                url=API_URL,
+                mdata=catalog_entry.metadata,
+                start_date=config['start_date'],
+                replication_method=catalog_entry.replication_method
             )
 
         singer.write_state(state)
@@ -223,9 +229,11 @@ def do_sync_mode(config, state, catalog):
     logger.info('Finished Sync..')
 
 
-def do_discover():
-    catalog = get_catalog()
-    # dump catalog
+def do_discover(config):
+    replication_method = 'INCREMENTAL'
+    if 'rewrite_replication_method' in config:
+        replication_method = config['rewrite_replication_method']
+    catalog = get_catalog(replication_method)
     print(json.dumps(catalog, indent=2))
 
 
@@ -237,7 +245,7 @@ def get_abs_path(path):
 def main():
     args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
     if args.discover:
-        do_discover()
+        do_discover(args.config)
     elif args.catalog:
         do_sync_mode(args.config, args.state, args.catalog)
 
