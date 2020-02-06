@@ -16,6 +16,7 @@ CUSTOM_KEY_PROPERTIES = {
     'rates': ['rate_card_id'],
     'milestones': ['id', 'project_id'],
     'repeating_cards': ['id', 'project_id'],
+    'expense_items': ['id', 'project_id'],
     'sprints': ['id', 'project_id'],
     'sub_tasks': ['id', 'project_id'],
     'workflow_columns': ['id', 'project_id']
@@ -160,7 +161,7 @@ def get_catalog(replication_method):
             ),
             'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
             'replication_key': 'updated_at',
-            'replication_method': replication_method,
+            'replication_method': replication_method if replication_method else None,
         }
         streams.append(catalog_entry)
     return {'streams': streams}
@@ -186,6 +187,7 @@ CUSTOM_SYNC_FUNC = {
     'sprints': get_all_data_with_projects,
     'sub_tasks': get_all_data_with_projects,
     'workflow_columns': get_all_data_with_projects,
+    'expense_items': get_all_data_with_projects
 }
 
 
