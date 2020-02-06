@@ -45,9 +45,13 @@ This tap:
 
 2. Get your Forecast api key and create the config file
 
-    Create a JSON file containing the api key
+    Create a JSON file containing the api key (required), a start date (required), if you want to change the replication method default: 'INCREMENTAL' (optional)
     ```json
-    {"API_KEY": "your-api-key"}
+    { 
+      "API_KEY": "your-api-key",
+      "start_date": "2020-01-01T00:00:00Z",
+      "rewrite_replication_method": "INCREMENTAL"
+    }
     ```
 
 3. Run the tap in discovery mode to get properties.json file
