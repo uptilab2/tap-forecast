@@ -21,7 +21,8 @@ CUSTOM_KEY_PROPERTIES = {
     'sub_tasks': ['id', 'project_id'],
     'workflow_columns': ['id', 'project_id']
 }
-
+ROLES = []
+SUB_ROLES_SYNC = ['rates', 'cards']
 
 class AuthException(Exception):
     pass
@@ -42,6 +43,22 @@ def request_get(url, headers={}):
     return resp
 
 
+def sub_objects_store(stream, record):
+    # check current stream name if has sub object
+    if stream in SUB_ROLES_SYNC:
+        # avoid double roles records
+        ROLES.append(record['roles'] if record['roles'] not in ROLES)
+
+
+
+def get_all_objects_id(url, name):
+    response = request_get(url+name)
+    if response:
+        objects = response.json()
+        for obj in objects:
+            yield obj.get('id')
+
+
 def get_all_data(name, schema, state, url, start_date, replication_method, mdata=None):
     response = request_get(url+name)
     if response:
@@ -55,6 +72,7 @@ def get_all_data(name, schema, state, url, start_date, replication_method, mdata
             extraction_time = singer.utils.now()
             for record in records:
                 with singer.Transformer() as transformer:
+                    sub_objects_store(name, record)
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
                     if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
@@ -102,14 +120,6 @@ def get_all_data_with_projects(name, schema, state, url, start_date, replication
     return state
 
 
-def get_all_objects_id(url, name):
-    response = request_get(url+name)
-    if response:
-        objects = response.json()
-        for obj in objects:
-            yield obj.get('id')
-
-
 def get_all_rate_card_rates(name, schema, state, url, start_date, replication_method, mdata=None):
     with metrics.record_counter(name) as counter:
         for rate_card_id in get_all_objects_id(url, 'rate_cards'):
@@ -119,12 +129,12 @@ def get_all_rate_card_rates(name, schema, state, url, start_date, replication_me
                 if bookmark is None:
                     bookmark = start_date
                 new_bookmark = bookmark
-
                 records = response.json()
                 extraction_time = singer.utils.now()
                 for record in records:
                     with singer.Transformer() as transformer:
                         record['rate_card_id'] = rate_card_id
+                        sub_objects_store(name, record)
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
@@ -139,6 +149,40 @@ def get_all_rate_card_rates(name, schema, state, url, start_date, replication_me
                         new_bookmark
                     )
     return state
+
+
+def get_roles(name, schema, state, url, start_date, replication_method, mdata=None):
+    # roles sync as sub or stream if no roles
+    if ROLES:
+        with metrics.record_counter(name) as counter:
+            for role_id in ROLES:
+                response = request_get(url+f'{name}/{role_id}')
+                if response:
+                    records = response.json()
+                    extraction_time = singer.utils.now()
+                    for record in records:
+                        with singer.Transformer() as transformer:
+                            rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
+                            singer.write_record(name, rec,
+                                                time_extracted=extraction_time)
+                            counter.increment()
+                        singer.write_bookmark(
+                            state,
+                            name,
+                            'updated_at',
+                            new_bookmark
+                        )
+        return state
+    else:
+        return get_all_data(
+            name,
+            schema,
+            state,
+            url=API_URL,
+            mdata=mdata,
+            start_date=start_date,
+            replication_method=replication_method
+        )
 
 
 def get_catalog(replication_method):
@@ -226,6 +270,22 @@ def do_sync_mode(config, state, catalog):
 
         singer.write_state(state)
 
+        # check if has sub roles sync them
+        if catalog_entry.stream in SUB_ROLES_SYNC:
+            stream = catalog.get_stream('roles')
+            roles_schema = stream.schema.to_dict()
+            singer.write_schema(stream.stream, roles_schema,
+                                stream.key_properties)
+            roles_state = get_roles(
+                stream.stream,
+                roles_schema,
+                state,
+                url=API_URL,
+                mdata=stream.metadata,
+                start_date=config['start_date'],
+                replication_method=stream.replication_method
+            )
+            singer.write_state(roles_state) 
     logger.info('Finished Sync..')
 
 
