@@ -150,17 +150,15 @@ def get_data_with_projects(name, schema, state, url, start_date, replication_key
                     with singer.Transformer() as transformer:
                         record['project_id'] = project_id
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
-                        new_bookmark = max(new_bookmark, rec[replication_key])
-
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
-                    singer.write_bookmark(
-                        state,
-                        name,
-                        replication_key,
-                        new_bookmark
-                    )
+                singer.write_bookmark(
+                    state,
+                    name,
+                    replication_key,
+                    extraction_time
+                )
     return state
 
 
@@ -218,11 +216,11 @@ def get_catalog(replication_method):
                 schema=schema,
                 schema_name=schema_name,
                 key_properties=['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-                valid_replication_keys=['updated_at' if not schema_name == 'financials' else ''],
+                valid_replication_keys=['updated_at' if not schema_name == 'financials' else 'time_extracted'],
                 replication_method=replication_method if replication_method else None
             ),
             'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-            'replication_key': 'updated_at' if not schema_name == 'financials' else '',
+            'replication_key': 'updated_at' if not schema_name == 'financials' else 'time_extracted',
             'replication_method': replication_method if replication_method else None,
         }
         streams.append(catalog_entry)
