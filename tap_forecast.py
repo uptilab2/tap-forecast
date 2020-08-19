@@ -21,7 +21,7 @@ CUSTOM_KEY_PROPERTIES = {
     'sub_tasks': ['id', 'project_id'],
     'workflow_columns': ['id', 'project_id']
 }
-
+FULL_DATA_STREAM = ['roles']
 
 class AuthException(Exception):
     pass
@@ -42,7 +42,7 @@ def request_get(url, headers={}):
     return resp
 
 
-def get_all_data(name, schema, state, url, start_date, replication_method, mdata=None):
+def get_all_data(name, schema, state, url, start_date, replication_method, mdata=None, by_pass_date=False):
     response = request_get(url+name)
     if response:
         bookmark = singer.get_bookmark(state, name, 'updated_at')
@@ -58,7 +58,8 @@ def get_all_data(name, schema, state, url, start_date, replication_method, mdata
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec['updated_at'])
                     if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
-                    (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
+                    (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date) or \
+                    by_pass_date:
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
@@ -72,6 +73,7 @@ def get_all_data(name, schema, state, url, start_date, replication_method, mdata
 
 
 def get_all_data_with_projects(name, schema, state, url, start_date, replication_method, mdata=None):
+    logger.info(f'get stream {name} with projects id')
     with metrics.record_counter(name) as counter:
         for project_id in get_all_objects_id(url, 'projects'):
             response = request_get(url+f'projects/{project_id}/{name}')
@@ -89,7 +91,7 @@ def get_all_data_with_projects(name, schema, state, url, start_date, replication
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
-                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
+                        replication_method == 'FULL_TABLE':
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
@@ -128,7 +130,7 @@ def get_all_rate_card_rates(name, schema, state, url, start_date, replication_me
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                         new_bookmark = max(new_bookmark, rec['updated_at'])
                         if (replication_method == 'INCREMENTAL' and rec.get('updated_at') > bookmark) or \
-                        (replication_method == 'FULL_TABLE' and rec.get('updated_at') > start_date):
+                        replication_method == 'FULL_TABLE':
                             singer.write_record(name, rec,
                                                 time_extracted=extraction_time)
                             counter.increment()
@@ -180,6 +182,7 @@ def load_schemas():
 
 
 CUSTOM_SYNC_FUNC = {
+    'cards': get_all_data_with_projects,
     'milestones': get_all_data_with_projects,
     'team': get_all_data_with_projects,
     'rates': get_all_rate_card_rates,
@@ -221,7 +224,8 @@ def do_sync_mode(config, state, catalog):
                 url=API_URL,
                 mdata=catalog_entry.metadata,
                 start_date=config['start_date'],
-                replication_method=catalog_entry.replication_method
+                replication_method=catalog_entry.replication_method,
+                by_pass_date=bool(catalog_entry.stream in FULL_DATA_STREAM)
             )
 
         singer.write_state(state)
