@@ -1,0 +1,505 @@
+{
+    "type": ["null", "object"],
+    "additionalProperties": false,
+    "properties": {
+		"project_id": {
+			"type": ["null", "integer"]
+		},
+		"progress": {
+            "type": ["null", "object"],
+            "properties":{
+            	"period_value": {
+					"type": ["null", "number"]
+				},
+				"total_value": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"fixed_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "number"]
+				},
+				"cost": {
+					"type": ["null", "number"]
+				},
+				"profit": {
+					"type": ["null", "number"]
+				},
+				"margin": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"actual_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"plan_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"remaining_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"forecast_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"actual_variance_to_plan_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"forecast_variance_to_plan_price": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"cost": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"profit": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"margin": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"company_financials": {
+            "type": ["null", "object"],
+            "properties":{
+            	"revenue": {
+					"type": ["null", "number"]
+				},
+				"cost": {
+					"type": ["null", "number"]
+				},
+				"profit": {
+					"type": ["null", "number"]
+				},
+				"margin": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"registered_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"period_value": {
+					"type": ["null", "number"]
+				},
+				"total_value": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"remaining_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"period_value": {
+					"type": ["null", "number"]
+				},
+				"total_value": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"forecast_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"period_value": {
+					"type": ["null", "number"]
+				},
+				"total_value": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"estimated_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"approved": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"all": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"low_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"approved": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"all": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"high_hours": {
+            "type": ["null", "object"],
+            "properties":{
+            	"approved": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				"all": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"allocation": {
+            "type": ["null", "object"],
+            "properties":{
+            	"period_value": {
+					"type": ["null", "number"]
+				},
+				"total_value": {
+					"type": ["null", "number"]
+				}
+            }
+		},
+		"invoice": {
+            "type": ["null", "object"],
+            "properties":{
+            	"invoiced_price": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				},
+				
+				"invoiced_paid": {
+					"type": ["null", "object"],
+					"properties":{
+						"period_value": {
+							"type": ["null", "number"]
+						},
+						"total_value": {
+							"type": ["null", "number"]
+						}
+					}
+				}
+            }
+		},
+		"updated_at": {
+            "type": ["null", "string"],
+            "format": "date-time"
+		}
+    }
+}
