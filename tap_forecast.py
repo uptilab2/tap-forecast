@@ -67,6 +67,7 @@ def get_projects(schema,
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec[replication_key])
+                    logger.info(replication_method)
                     if (replication_method == 'INCREMENTAL' and rec.get(replication_key) > bookmark) or \
                     (replication_method == 'FULL_TABLE' and rec.get(replication_key) > start_date):
                         projects.append(rec)
@@ -140,7 +141,11 @@ def get_data_with_projects(name, schema, state, url, start_date, replication_key
             response = request_get(url+f'projects/{project_id}/{name}')
             if response:
                 records = response.json()
-
+                if replication_key:
+                    bookmark = singer.get_bookmark(state, name, replication_key)
+                    if bookmark is None:
+                        bookmark = start_date
+                    new_bookmark = bookmark
                 # checking if it is not a list, this if for financials stream
                 if not isinstance(records, list):
                     records = [records]
@@ -150,15 +155,18 @@ def get_data_with_projects(name, schema, state, url, start_date, replication_key
                     with singer.Transformer() as transformer:
                         record['project_id'] = project_id
                         rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
+                        if replication_key:
+                            new_bookmark = max(new_bookmark, rec[replication_key])
                         singer.write_record(name, rec,
                                             time_extracted=extraction_time)
                         counter.increment()
-                singer.write_bookmark(
-                    state,
-                    name,
-                    replication_key,
-                    extraction_time
-                )
+                if replication_key:
+                    singer.write_bookmark(
+                        state,
+                        name,
+                        replication_key,
+                        new_bookmark
+                    )
     return state
 
 
@@ -216,11 +224,11 @@ def get_catalog(replication_method):
                 schema=schema,
                 schema_name=schema_name,
                 key_properties=['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-                valid_replication_keys=['updated_at' if not schema_name == 'financials' else 'time_extracted'],
+                valid_replication_keys=['updated_at' if not schema_name == 'financials' else ''],
                 replication_method=replication_method if replication_method else None
             ),
             'key_properties': ['id'] if schema_name not in CUSTOM_KEY_PROPERTIES else CUSTOM_KEY_PROPERTIES[schema_name],
-            'replication_key': 'updated_at' if not schema_name == 'financials' else 'time_extracted',
+            'replication_key': 'updated_at' if not schema_name == 'financials' else '',
             'replication_method': replication_method if replication_method else None,
         }
         streams.append(catalog_entry)
@@ -254,11 +262,11 @@ def do_sync_mode(config, state, catalog):
         projects_stream_entry.schema.to_dict(),
         state,
         url=API_URL,
-        mdata=projects_stream_entry.metadata,
         start_date=config['start_date'],
         replication_key=projects_stream_entry.replication_key,
         replication_method=projects_stream_entry.replication_method,
-        sync=projects_stream_entry.is_selected()
+        sync=projects_stream_entry.is_selected(),
+        mdata=projects_stream_entry.metadata
     )
 
     for catalog_entry in catalog.get_selected_streams(state):
