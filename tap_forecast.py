@@ -21,7 +21,7 @@ CUSTOM_KEY_PROPERTIES = {
     'sub_tasks': ['id', 'project_id'],
     'workflow_columns': ['id', 'project_id']
 }
-FULL_DATA_STREAM = ['roles']
+FULL_DATA_STREAM = ['roles', 'clients', 'persons']
 
 class AuthException(Exception):
     pass
