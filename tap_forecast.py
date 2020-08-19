@@ -67,7 +67,6 @@ def get_projects(schema,
                 with singer.Transformer() as transformer:
                     rec = transformer.transform(record, schema, metadata=metadata.to_map(mdata))
                     new_bookmark = max(new_bookmark, rec[replication_key])
-                    logger.info(replication_method)
                     if (replication_method == 'INCREMENTAL' and rec.get(replication_key) > bookmark) or \
                     (replication_method == 'FULL_TABLE' and rec.get(replication_key) > start_date):
                         projects.append(rec)
@@ -136,7 +135,6 @@ def get_data_with_projects(name, schema, state, url, start_date, replication_key
     with metrics.record_counter(name) as counter:
         logger.info(projects_data)
         for project in projects_data:
-            logger.info(project)
             project_id = project.get('id')
             response = request_get(url+f'projects/{project_id}/{name}')
             if response:
