@@ -249,6 +249,9 @@ def do_sync_mode(config, state, catalog):
 
     # get projects data and sync it if stream is selected
     projects_stream_entry = catalog.get_stream('projects')
+    if projects_stream_entry.is_selected():
+        singer.write_schema(projects_stream_entry.stream, projects_stream_entry.schema.to_dict(),
+                        projects_stream_entry.key_properties)
     projects = get_projects(
         projects_stream_entry.schema.to_dict(),
         state,
