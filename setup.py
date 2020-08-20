@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='tap-forecast',
-    version='1.0.0',
+    version='1.0.1',
     description='Singer.io tap for extracting data from the Forecast API',
     author='ngteric',
     classifiers=['Programming Language :: Python :: 3 :: Only'],
