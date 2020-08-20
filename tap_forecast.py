@@ -133,7 +133,6 @@ def get_data(name,
 def get_data_with_projects(name, schema, state, url, start_date, replication_key, replication_method, projects_data, mdata=None):
     logger.info(f'get stream {name} with projects id')
     with metrics.record_counter(name) as counter:
-        logger.info(projects_data)
         for project in projects_data:
             project_id = project.get('id')
             response = request_get(url+f'projects/{project_id}/{name}')
