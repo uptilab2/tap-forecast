@@ -80,6 +80,13 @@
                 "string"
             ],
             "format": "date-time"
+        },
+        "project_id": {
+            "type": [
+                "null",
+                "integer"
+            ],
+            "description": "ID of project"
         }
     }
 }
